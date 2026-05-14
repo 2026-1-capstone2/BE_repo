@@ -1,0 +1,22 @@
+# nginx & certbot 관련 (Spring 빌드에 불필요)
+nginx/
+data/
+
+# git
+.git/
+.gitignore
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Gradle build cache
+.gradle/
+
+# 환경 파일
+.env
+
+# 임시 파일
+*.log
+*.tmp
