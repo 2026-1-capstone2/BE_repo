@@ -1,0 +1,38 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          script: |
+            set -e
+            echo "📦 Moving to project directory..."
+            cd ~/app/BE_repo
+
+            echo "🔄 Pulling latest code..."
+            git pull origin main
+
+            echo "🔨 Building JAR..."
+            ./gradlew clean build -x test
+
+            echo "🐳 Rebuilding Spring container..."
+            docker-compose up -d --build spring-app
+
+            echo "🧹 Cleaning up old images..."
+            docker image prune -f
+
+            echo "✅ Deploy complete!"
+            docker-compose ps spring-app
