@@ -39,7 +39,7 @@ dependencies {
     //implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 
     // RabbitMQ (AI 분석 결과 수신)
-    //implementation 'org.springframework.boot:spring-boot-starter-amqp'
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
 
     // AWS S3 (Presigned URL 발급)
     implementation platform('software.amazon.awssdk:bom:2.25.70')
