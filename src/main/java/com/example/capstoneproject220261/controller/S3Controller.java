@@ -28,4 +28,16 @@ public class S3Controller {
 
     return ResponseEntity.ok(response);
   }
+
+  @GetMapping("/download-url")
+  public ResponseEntity<Map<String, String>> getDownloadUrl(
+      @RequestParam String key) {
+    String url = s3Service.generateDownloadPresignedUrl(key);
+
+    Map<String, String> response = new HashMap<>();
+    response.put("url", url);
+    response.put("key", key);
+
+    return ResponseEntity.ok(response);
+  }
 }
