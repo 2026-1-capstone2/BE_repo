@@ -7,8 +7,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 
 @Service
@@ -43,6 +45,28 @@ public class S3Service {
           resigned.presignPutObject(r -> r
               .signatureDuration(Duration.ofMinutes(10))
               .putObjectRequest(putObjectRequest));
+
+      return presignedRequest.url().toString();
+    }
+  }
+
+  public String generateDownloadPresignedUrl(String key) {
+    GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+        .bucket(bucket)
+        .key(key)
+        .build();
+
+    try (S3Presigner resigned = S3Presigner.builder()
+                                           .region(Region.of(region))
+                                           .credentialsProvider(
+            s3Client.serviceClientConfiguration()
+                .credentialsProvider())
+                                           .build()){
+
+      PresignedGetObjectRequest presignedRequest =
+          resigned.presignGetObject(r -> r
+              .signatureDuration(Duration.ofMinutes(60))
+              .getObjectRequest(getObjectRequest));
 
       return presignedRequest.url().toString();
     }

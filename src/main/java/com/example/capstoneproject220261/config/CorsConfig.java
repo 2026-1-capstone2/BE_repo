@@ -13,10 +13,9 @@ public class CorsConfig implements WebMvcConfigurer {
         .allowedOrigins(
             "http://localhost:5173",
             "http://localhost:3000",
-            "https://*.vercel.app",
             "https://fe-repo-ten.vercel.app/"
         )
-        .allowedOriginPatterns("https://*.vercel.app")
+        .allowedOriginPatterns("https://fe-repo-*.vercel.app")
         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
         .allowedHeaders("*")
         .allowCredentials(true)
