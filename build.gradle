@@ -36,7 +36,7 @@ dependencies {
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
 
     // DB - MongoDB (대화 이력)
-    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+    //implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 
     // RabbitMQ (AI 분석 결과 수신)
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
