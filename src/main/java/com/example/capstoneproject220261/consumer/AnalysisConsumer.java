@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class AnalysisConsumer {
 
-  @RabbitListener(queues = RabbitMQConfig.ANALYSIS_QUEUE)
+  @RabbitListener(queues = RabbitMQConfig.COMPLETED_QUEUE)
   public void consume(Map<String, Object> message) {
     log.info("분석 결과 수신 - message: {}", message);
 
