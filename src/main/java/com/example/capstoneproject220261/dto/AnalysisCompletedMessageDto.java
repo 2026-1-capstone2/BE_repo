@@ -13,11 +13,15 @@ public record AnalysisCompletedMessageDto(
     Result result,
     Error error
 ) {
+
+  @JsonIgnoreProperties(ignoreUnknown = true)
   public record Result(
-      String spatial_feature_s3_key,
+      String spatial_features_s3_key,
       Double spatial_confidence,
-      VideoMetadata video_metadata
-  ){}
+      VideoMetadata video_metadata,
+      SpaceAnalysis space_analysis,
+      ProcessingTime processing_time
+  ) {}
 
   @JsonIgnoreProperties(ignoreUnknown = true)
   public record VideoMetadata(
@@ -25,7 +29,7 @@ public record AnalysisCompletedMessageDto(
       String resolution,
       Integer frame_count,
       Integer points_3d
-  ){}
+  ) {}
 
   @JsonIgnoreProperties(ignoreUnknown = true)
   public record SpaceAnalysis(
@@ -33,11 +37,12 @@ public record AnalysisCompletedMessageDto(
       Double estimated_area_m2,
       List<String> detected_objects
   ) {}
+
   @JsonIgnoreProperties(ignoreUnknown = true)
   public record ProcessingTime(
       Integer preprocess_ms,
       Integer total_ms
-  ){}
+  ) {}
 
   @JsonIgnoreProperties(ignoreUnknown = true)
   public record Error(
