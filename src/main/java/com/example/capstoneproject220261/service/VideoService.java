@@ -1,7 +1,5 @@
 package com.example.capstoneproject220261.service;
 
-import static tools.jackson.databind.ext.javatime.util.DecimalUtils.toBigDecimal;
-
 import com.example.capstoneproject220261.domain.AnalysisResult;
 import com.example.capstoneproject220261.domain.Video;
 import com.example.capstoneproject220261.dto.AiPreprocessRequestDto;
@@ -81,6 +79,7 @@ public class VideoService {
 
       String errorMsg = message.error() != null ? message.error().message() : "분석 실패";
       sseEmitterService.sendResult(jobId, AnalysisResultResponseDto.failed(jobId, errorMsg));
+      return;
     }
 
     AnalysisCompletedMessageDto.Result r = message.result();

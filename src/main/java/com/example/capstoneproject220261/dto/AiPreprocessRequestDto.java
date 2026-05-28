@@ -1,8 +1,8 @@
 package com.example.capstoneproject220261.dto;
 
 public record AiPreprocessRequestDto(
-    String jobId,
-    String userId,
+    String job_id,
+    String user_id,
     String video_url,
     Metadata metadata
 ) {
