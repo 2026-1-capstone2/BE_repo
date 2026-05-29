@@ -17,7 +17,7 @@ public class AiService {
 
   //영상 전처리 의뢰
   public AiPreprocessResponseDto preprocess(AiPreprocessRequestDto request) {
-    log.info("AI 서버 전처리 의뢰 - job_id: {}", request.jobId());
+    log.info("AI 서버 전처리 의뢰 - job_id: {}", request.job_id());
 
     AiPreprocessResponseDto response = webClient.post()
         .uri("/api/v1/preprocess")
