@@ -55,10 +55,10 @@ public class VideoService {
       aiService.preprocess(aiRequest);
       log.info("AI 서버 전처리 요청 완료 - jobId: {}", saved.getJobId());
     } catch (Exception e) {
-      log.error("AI 서버 전처리 의뢰 실패 - jobId: {}", saved.getJobId());
-      saved.markAsFailed();
+      //log.error("AI 서버 전처리 의뢰 실패 - jobId: {}", saved.getJobId());
+      //saved.markAsFailed();
       videoRepository.save(saved); //실패한 거 UPDATE 후 다시 저장.
-      throw new IllegalStateException("AI 서버 요청 실패", e);
+      //throw new IllegalStateException("AI 서버 요청 실패", e);
     }
     return saved; //FRONT에서 받아서 SSE 구독을 해야하니 RETURN 해줘야 함.
   }
