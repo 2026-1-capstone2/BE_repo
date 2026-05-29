@@ -38,6 +38,9 @@ dependencies {
     // DB - MongoDB (대화 이력)
     //implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 
+    // Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
     // RabbitMQ (AI 분석 결과 수신)
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
 
