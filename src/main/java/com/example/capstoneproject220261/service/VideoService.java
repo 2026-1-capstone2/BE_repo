@@ -1,7 +1,5 @@
 package com.example.capstoneproject220261.service;
 
-import static tools.jackson.databind.ext.javatime.util.DecimalUtils.toBigDecimal;
-
 import com.example.capstoneproject220261.domain.AnalysisResult;
 import com.example.capstoneproject220261.domain.Video;
 import com.example.capstoneproject220261.dto.AiPreprocessRequestDto;
@@ -57,10 +55,10 @@ public class VideoService {
       aiService.preprocess(aiRequest);
       log.info("AI 서버 전처리 요청 완료 - jobId: {}", saved.getJobId());
     } catch (Exception e) {
-      log.error("AI 서버 전처리 의뢰 실패 - jobId: {}", saved.getJobId());
-      saved.markAsFailed();
+      //log.error("AI 서버 전처리 의뢰 실패 - jobId: {}", saved.getJobId());
+      //saved.markAsFailed();
       videoRepository.save(saved); //실패한 거 UPDATE 후 다시 저장.
-      throw new IllegalStateException("AI 서버 요청 실패", e);
+      //throw new IllegalStateException("AI 서버 요청 실패", e);
     }
     return saved; //FRONT에서 받아서 SSE 구독을 해야하니 RETURN 해줘야 함.
   }
@@ -81,6 +79,7 @@ public class VideoService {
 
       String errorMsg = message.error() != null ? message.error().message() : "분석 실패";
       sseEmitterService.sendResult(jobId, AnalysisResultResponseDto.failed(jobId, errorMsg));
+      return;
     }
 
     AnalysisCompletedMessageDto.Result r = message.result();
