@@ -2,6 +2,7 @@ package com.example.capstoneproject220261.service;
 
 import com.example.capstoneproject220261.domain.AnalysisResult;
 import com.example.capstoneproject220261.domain.Video;
+import com.example.capstoneproject220261.domain.Video.VideoStatus;
 import com.example.capstoneproject220261.dto.AiPreprocessRequestDto;
 import com.example.capstoneproject220261.dto.AnalysisCompletedMessageDto;
 import com.example.capstoneproject220261.dto.AnalysisResultResponseDto;
@@ -12,6 +13,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -114,5 +116,22 @@ public class VideoService {
 
   private BigDecimal toBigDecimal(Double value) {
     return value != null ? BigDecimal.valueOf(value) : null;
+  }
+
+  @Cacheable(value = "analysisResult", key = "#jobId", unless = "#result == null")
+  public AnalysisResultResponseDto getAnalysisResult(String jobId) {
+    log.info("분석 결과 조회(캐시 미스) - jobId: {}", jobId);
+
+    Video video = videoRepository.findByJobId(jobId)
+        .orElseThrow(() -> new IllegalArgumentException("영상 없음: " + jobId));
+
+    if(video.getStatus() != VideoStatus.DONE) {
+      return null;
+    }
+
+    AnalysisResult result = analysisResultRepository.findByVideo(video)
+        .orElseThrow(() -> new IllegalArgumentException("분석 결과 없음: " + jobId));
+
+    return AnalysisResultResponseDto.done(result);
   }
 }
