@@ -1,12 +1,14 @@
 package com.example.capstoneproject220261.controller;
 
 import com.example.capstoneproject220261.domain.Video;
+import com.example.capstoneproject220261.dto.AnalysisResultResponseDto;
 import com.example.capstoneproject220261.dto.VideoUploadedRequestDto;
 import com.example.capstoneproject220261.dto.VideoUploadedResponseDto;
 import com.example.capstoneproject220261.service.SseEmitterService;
 import com.example.capstoneproject220261.service.VideoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,5 +41,14 @@ public class VideoController {
   @GetMapping(value = "/{jobId}/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   public SseEmitter streamResult(@PathVariable String jobId) {
     return sseEmitterService.subscribe(jobId);
+  }
+
+  @GetMapping("/{jobId}/result")
+  public ResponseEntity<AnalysisResultResponseDto> getResult(@PathVariable String jobId){
+    AnalysisResultResponseDto result = videoService.getAnalysisResult(jobId);
+    if(result == null) {
+      return ResponseEntity.noContent().build();
+    }
+    return ResponseEntity.ok(result);
   }
 }

@@ -40,6 +40,7 @@ dependencies {
 
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
 
     // RabbitMQ (AI 분석 결과 수신)
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
