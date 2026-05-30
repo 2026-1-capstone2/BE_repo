@@ -6,10 +6,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Slf4j
 @Service
+@Transactional(readOnly = true)
 public class SseEmitterService {
 
   private final Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
