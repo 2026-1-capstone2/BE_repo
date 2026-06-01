@@ -1,6 +1,7 @@
 package com.example.capstoneproject220261.dto;
 
 import com.example.capstoneproject220261.domain.AnalysisResult;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
@@ -19,7 +20,7 @@ public record AnalysisResultResponseDto(
     Integer preprocessMs,
     Integer totalMs,
     String errorMessage
-) {
+) implements Serializable {
 
   public static AnalysisResultResponseDto done(AnalysisResult result) {
     return new AnalysisResultResponseDto(
