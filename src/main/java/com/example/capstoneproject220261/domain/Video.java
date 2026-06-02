@@ -36,7 +36,7 @@ public class Video {
   @Column(name = "original_filename", length = 255)
   private String originalFilename;
 
-  @Column(name = "s3_key", nullable = false, length = 500)
+  @Column(name = "s3_key", unique = true, nullable = false, length = 500)
   private String s3Key;
 
   @Column(name = "file_size_bytes")

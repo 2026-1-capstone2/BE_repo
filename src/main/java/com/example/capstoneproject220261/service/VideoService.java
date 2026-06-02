@@ -10,10 +10,12 @@ import com.example.capstoneproject220261.dto.VideoUploadedRequestDto;
 import com.example.capstoneproject220261.repository.AnalysisResultRepository;
 import com.example.capstoneproject220261.repository.VideoRepository;
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +34,13 @@ public class VideoService {
   // FE에서 사용자가 업로드 했을 경우
   @Transactional
   public Video registerUploadedVideo(VideoUploadedRequestDto request) {
+
+    Optional<Video> existing = videoRepository.findByS3Key(request.s3Key());
+    if(existing.isPresent()) {
+      log.info("이미 등록된 영상 - 기존 jobId 반환 : {}", existing.get().getJobId());
+      return existing.get();
+    }
+
     String jobId = UUID.randomUUID().toString();
 
     Video video = Video.builder()
@@ -42,11 +51,17 @@ public class VideoService {
         .fileSizeBytes(request.fileSize())
         .build();
 
-    Video saved = videoRepository.save(video);
+    Video saved;
+    try {
+      saved = videoRepository.save(video);
+    } catch (DataIntegrityViolationException e) {
+      log.info("동시 요청 감지 - 기존 영상 반환");
+      return videoRepository.findByS3Key(request.s3Key())
+          .orElseThrow(() -> new IllegalArgumentException("멱등 처리 실패", e));
+    }
     log.info("영상 저장 성공 - id: {}, jobId: {}, s3Key: {}", saved.getId(), saved.getJobId(), saved.getS3Key());
 
     String videoUrl = s3Service.generateDownloadPresignedUrl(saved.getS3Key());
-
     AiPreprocessRequestDto aiRequest = new AiPreprocessRequestDto(
         saved.getJobId(),
         saved.getUserId(),
