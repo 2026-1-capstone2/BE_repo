@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
@@ -29,6 +30,7 @@ public class VideoService {
   private final SseEmitterService sseEmitterService;
   private final VideoCommandService videoCommandService;
 
+  @Transactional(propagation = Propagation.NOT_SUPPORTED)
   public Video registerUploadedVideo(VideoUploadedRequestDto request) {
     Video saved = videoCommandService.saveVideoIdempotent(request);
     requestAiPreprocess(saved);
