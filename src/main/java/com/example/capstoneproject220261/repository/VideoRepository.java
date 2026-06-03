@@ -10,5 +10,4 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
 
   Optional<Video> findByJobId(String jobId);
   Optional<Video> findByS3Key(String s3Key);
-  boolean existByS3Key(String s3Key);
 }
