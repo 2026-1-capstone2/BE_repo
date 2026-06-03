@@ -10,12 +10,9 @@ import com.example.capstoneproject220261.dto.VideoUploadedRequestDto;
 import com.example.capstoneproject220261.repository.AnalysisResultRepository;
 import com.example.capstoneproject220261.repository.VideoRepository;
 import java.math.BigDecimal;
-import java.util.Optional;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,68 +27,39 @@ public class VideoService {
   private final S3Service s3Service;
   private final AiService aiService;
   private final SseEmitterService sseEmitterService;
+  private final VideoCommandService videoCommandService;
 
-  // FE에서 사용자가 업로드 했을 경우
-  @Transactional
   public Video registerUploadedVideo(VideoUploadedRequestDto request) {
+    Video saved = videoCommandService.saveVideoIdempotent(request);
+    requestAiPreprocess(saved);
+    return saved;
+  }
 
-    Optional<Video> existing = videoRepository.findByS3Key(request.s3Key());
-    if(existing.isPresent()) {
-      log.info("이미 등록된 영상 - 기존 jobId 반환 : {}", existing.get().getJobId());
-      return existing.get();
-    }
-
-    String jobId = UUID.randomUUID().toString();
-
-    Video video = Video.builder()
-        .jobId(jobId)
-        .userId("anonymous")
-        .originalFilename(request.originalFilename())
-        .s3Key(request.s3Key())
-        .fileSizeBytes(request.fileSize())
-        .build();
-
-    Video saved;
+  private void requestAiPreprocess(Video saved) {
     try {
-      saved = videoRepository.save(video);
-    } catch (DataIntegrityViolationException e) {
-      log.info("동시 요청 감지 - 기존 영상 반환");
-      return videoRepository.findByS3Key(request.s3Key())
-          .orElseThrow(() -> new IllegalArgumentException("멱등 처리 실패", e));
-    }
-    log.info("영상 저장 성공 - id: {}, jobId: {}, s3Key: {}", saved.getId(), saved.getJobId(), saved.getS3Key());
-
-    String videoUrl = s3Service.generateDownloadPresignedUrl(saved.getS3Key());
-    AiPreprocessRequestDto aiRequest = new AiPreprocessRequestDto(
-        saved.getJobId(),
-        saved.getUserId(),
-        videoUrl,
-        new AiPreprocessRequestDto.Metadata(null, null, null)
-    );
-
-    try { //성공 시에 State Default 값이 PROCESSING이니 따로 MARK 안해도 됨.
+      String videoUrl = s3Service.generateDownloadPresignedUrl(saved.getS3Key());
+      AiPreprocessRequestDto aiRequest = new AiPreprocessRequestDto(
+          saved.getJobId(),
+          saved.getUserId(),
+          videoUrl,
+          new AiPreprocessRequestDto.Metadata(null, null, null)
+      );
       aiService.preprocess(aiRequest);
       log.info("AI 서버 전처리 요청 완료 - jobId: {}", saved.getJobId());
     } catch (Exception e) {
-      log.error("AI 서버 전처리 의뢰 실패 - jobId: {}", saved.getJobId());
-      //saved.markAsFailed();
-      videoRepository.save(saved); //실패한 거 UPDATE 후 다시 저장.
-      //throw new IllegalStateException("AI 서버 요청 실패", e);
+      log.error("AI 서버 전처리 의뢰 실패 - jobId: {} (영상은 저장됨)", saved.getJobId());
     }
-    return saved; //FRONT에서 받아서 SSE 구독을 해야하니 RETURN 해줘야 함.
   }
 
-  //AI 서버로부터 결과가 왔을 때
   @Transactional
   public void handleAnalysisResult(AnalysisCompletedMessageDto message) {
     String jobId = message.job_id();
     log.info("분석 결과 수신 - jobId: {}, status: {}", jobId, message.status());
 
     Video video = videoRepository.findByJobId(jobId)
-                                 .orElseThrow(
-                                     () -> new IllegalArgumentException("영상 없음: " + jobId));
+                                 .orElseThrow(() -> new IllegalArgumentException("영상 없음: " + jobId));
 
-    if(message.isFailed()) {
+    if (message.isFailed()) {
       video.markAsFailed();
       videoRepository.save(video);
 
@@ -125,8 +93,6 @@ public class VideoService {
     videoRepository.save(video);
 
     log.info("분석 결과 저장 완료 - jobId: {}", jobId);
-
-    // SSE로 프론트에 전송
     sseEmitterService.sendResult(jobId, AnalysisResultResponseDto.done(analysisResult));
   }
 
@@ -139,14 +105,14 @@ public class VideoService {
     log.info("분석 결과 조회(캐시 미스) - jobId: {}", jobId);
 
     Video video = videoRepository.findByJobId(jobId)
-        .orElseThrow(() -> new IllegalArgumentException("영상 없음: " + jobId));
+                                 .orElseThrow(() -> new IllegalArgumentException("영상 없음: " + jobId));
 
-    if(video.getStatus() != VideoStatus.DONE) {
+    if (video.getStatus() != VideoStatus.DONE) {
       return null;
     }
 
     AnalysisResult result = analysisResultRepository.findByVideo(video)
-        .orElseThrow(() -> new IllegalArgumentException("분석 결과 없음: " + jobId));
+                                                    .orElseThrow(() -> new IllegalArgumentException("분석 결과 없음: " + jobId));
 
     return AnalysisResultResponseDto.done(result);
   }

@@ -1,6 +1,7 @@
 package com.example.capstoneproject220261.service;
 
 import com.example.capstoneproject220261.config.RabbitMQConfig;
+import com.example.capstoneproject220261.domain.Video;
 import com.example.capstoneproject220261.dto.AnalysisCompletedMessageDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
