@@ -70,24 +70,10 @@ public class VideoService {
       return;
     }
 
-    AnalysisCompletedMessageDto.Result r = message.result();
-    AnalysisCompletedMessageDto.VideoMetadata vm = r.video_metadata();
-    AnalysisCompletedMessageDto.SpaceAnalysis sa = r.space_analysis();
-    AnalysisCompletedMessageDto.ProcessingTime pt = r.processing_time();
-
     AnalysisResult analysisResult = AnalysisResult.builder()
                                                   .video(video)
-                                                  .spatialFeaturesS3Key(r.spatial_features_s3_key())
-                                                  .spatialConfidence(toBigDecimal(r.spatial_confidence()))
-                                                  .videoDurationSec(vm != null ? vm.duration_sec() : null)
-                                                  .videoResolution(vm != null ? vm.resolution() : null)
-                                                  .frameCount(vm != null ? vm.frame_count() : null)
-                                                  .points3D(vm != null ? vm.points_3d() : null)
-                                                  .estimatedType(sa != null ? sa.estimated_type() : null)
-                                                  .estimatedAreaM2(sa != null ? toBigDecimal(sa.estimated_area_m2()) : null)
-                                                  .detectedObjects(sa != null ? sa.detected_objects() : null)
-                                                  .preprocessMs(pt != null ? pt.preprocess_ms() : null)
-                                                  .totalMs(pt != null ? pt.total_ms() : null)
+                                                  .spatialFeaturesS3Key(message.spatial_features_s3_key())
+                                                  .totalMs(message.duration_ms() != null ? message.duration_ms().intValue() : null)
                                                   .build();
 
     analysisResultRepository.save(analysisResult);
