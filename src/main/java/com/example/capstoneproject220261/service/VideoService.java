@@ -54,20 +54,23 @@ public class VideoService {
   }
 
   @Transactional
-  public void handleAnalysisResult(AnalysisCompletedMessageDto message) {
+  public AnalysisResultResponseDto handleAnalysisResult(AnalysisCompletedMessageDto message) {
     String jobId = message.job_id();
-    log.info("분석 결과 수신 - jobId: {}, status: {}", jobId, message.status());
+    log.info("분석 결과 처리 - jobId: {}, status: {}", jobId, message.status());
 
     Video video = videoRepository.findByJobId(jobId)
                                  .orElseThrow(() -> new IllegalArgumentException("영상 없음: " + jobId));
 
+    if (video.getStatus() == VideoStatus.DONE || video.getStatus() == VideoStatus.FAILED) {
+      log.info("이미 처리된 작업 - 중복 메시지 무시: {}", jobId);
+      return null;
+    }
+
     if (message.isFailed()) {
       video.markAsFailed();
       videoRepository.save(video);
-
       String errorMsg = message.error() != null ? message.error().message() : "분석 실패";
-      sseEmitterService.sendResult(jobId, AnalysisResultResponseDto.failed(jobId, errorMsg));
-      return;
+      return AnalysisResultResponseDto.failed(jobId, errorMsg);
     }
 
     AnalysisResult analysisResult = AnalysisResult.builder()
@@ -81,7 +84,7 @@ public class VideoService {
     videoRepository.save(video);
 
     log.info("분석 결과 저장 완료 - jobId: {}", jobId);
-    sseEmitterService.sendResult(jobId, AnalysisResultResponseDto.done(analysisResult));
+    return AnalysisResultResponseDto.done(analysisResult);
   }
 
   private BigDecimal toBigDecimal(Double value) {
