@@ -3,6 +3,8 @@ package com.example.capstoneproject220261.service;
 
 import com.example.capstoneproject220261.dto.AiPreprocessRequestDto;
 import com.example.capstoneproject220261.dto.AiPreprocessResponseDto;
+import com.example.capstoneproject220261.dto.ChatRequestDto;
+import com.example.capstoneproject220261.dto.ChatResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,5 +34,15 @@ public class AiService {
         response != null ? response.estimated_time_sec() : "?");
 
     return response;
+  }
+
+  public ChatResponseDto chat(ChatRequestDto request) {
+    log.info("AI 챗봇 질의 - job_id: {}, question: {}", request.job_id(), request.question());
+    return webClient.post()
+                    .uri("/api/v1/chat")
+                    .bodyValue(request)
+                    .retrieve()
+                    .bodyToMono(ChatResponseDto.class)
+                    .block();
   }
 }
