@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Configuration;
 public class RabbitMQConfig {
 
   public static final String EXCHANGE = "analysis.exchange";
-  public static final String COMPLETED_QUEUE = "analysis.complted.queue";
+  public static final String COMPLETED_QUEUE = "analysis.completed.queue";
   public static final String ROUTING_KEY = "analysis.completed";
 
   //AI 서버가 분석 결과를 발행할 큐. Spring에서 이 큐를 구독(Consumer)해서 결과를 받는다.
