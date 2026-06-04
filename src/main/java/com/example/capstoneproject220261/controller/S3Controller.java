@@ -3,6 +3,7 @@ package com.example.capstoneproject220261.controller;
 import com.example.capstoneproject220261.service.S3Service;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,11 +21,12 @@ public class S3Controller {
   @GetMapping("/presigned-url")
   public ResponseEntity<Map<String, String>> getPresignedUrl(
       @RequestParam String fileName) {
-    String url = s3Service.generatePresignedUrl(fileName);
+    String key = UUID.randomUUID() + "_" + fileName;
+    String url = s3Service.generatePresignedUrl(key);
 
     Map<String, String> response = new HashMap<>();
     response.put("url", url);
-    response.put("fileName", fileName);
+    response.put("fileName", key);
 
     return ResponseEntity.ok(response);
   }

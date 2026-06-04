@@ -27,9 +27,8 @@ public class S3Service {
   @Value("${cloud.aws.region.static}")
   private String region;
 
-  public String generatePresignedUrl(String fileName) {
+  public String generatePresignedUrl(String key) {
 
-    String key = UUID.randomUUID() + "_" + fileName;
 
     PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                                                         .bucket(bucket)
