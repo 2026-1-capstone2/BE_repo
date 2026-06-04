@@ -17,7 +17,6 @@ public class AiService {
 
   private final WebClient webClient;
 
-  //영상 전처리 의뢰
   public AiPreprocessResponseDto preprocess(AiPreprocessRequestDto request) {
     log.info("AI 서버 전처리 의뢰 - job_id: {}", request.job_id());
 
