@@ -19,19 +19,16 @@ public class RabbitMQConfig {
   public static final String COMPLETED_QUEUE = "analysis.completed.queue";
   public static final String ROUTING_KEY = "analysis.completed";
 
-  //AI 서버가 분석 결과를 발행할 큐. Spring에서 이 큐를 구독(Consumer)해서 결과를 받는다.
   @Bean
   public Queue analysisCompletedQueue() {
     return QueueBuilder.durable(COMPLETED_QUEUE).build();
   }
 
-  //Direct Exchange - routing key가 정확히 일치하는 큐로만 전달한다.
   @Bean
   public DirectExchange analysisExchange() {
     return new DirectExchange(EXCHANGE);
   }
 
-  //Exchange와 Queue를 routing key로 연결
   @Bean
   public Binding completedBinding(
       Queue analysisCompletedQueue,
@@ -41,7 +38,6 @@ public class RabbitMQConfig {
         .with(ROUTING_KEY);
   }
 
-  //메서지를 JSON으로 직렬화/역직렬화. AI 서버가 JSON으로 보내면 Spring이 DTO로 자동 변환.
   @Bean
   public MessageConverter jsonMessageConverter() {
     return new JacksonJsonMessageConverter();

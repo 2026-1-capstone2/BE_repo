@@ -1,7 +1,6 @@
 package com.example.capstoneproject220261.service;
 
 import java.time.Duration;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

@@ -91,7 +91,7 @@ public class VideoService {
     return value != null ? BigDecimal.valueOf(value) : null;
   }
 
-  @Cacheable(value = "analysisResult", key = "#jobId", unless = "#result == null")
+  //@Cacheable(value = "analysisResult", key = "#jobId", unless = "#result == null")
   public AnalysisResultResponseDto getAnalysisResult(String jobId) {
     log.info("분석 결과 조회(캐시 미스) - jobId: {}", jobId);
 
